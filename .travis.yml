@@ -1,5 +1,9 @@
-dist: xenial
+dist: bionic
+arch: amd64
 language: c
+env:
+  global:
+   - secure: "Auq8ZlsgppZwZL/3e7NQ5TongaW/94f3OIg3hYqLqBONHjFEiP/Dod4NF1maIqJ5QxRSClcGwyOgrXAw88zLcA8FV2pyUzHBFhXpCNK5V43sh0NqMn4+0Wwaf6aLN7q8fYmVjj+245ZYFWK8NgVuUJKDYueUuzcVRJU7clasT+BlqQFj6W0MI0PLrW3ALt2qN7UUuVMmkmQyhscKVQIYK5efHgbeKuDjlu0FkwbkwkCCMFurSMHW7l4PuzZCdk3CstGD/KgxnI2kZsYwBo1uoTDOQqzN9UIUbA5WGB8GMGm1Y/DpneU7TR2xM9+aDViS+UDWc+0zf6E6qEbpGTZfvr58REU2jrIzpmdxIpv+GjN9QqrPLZ4czRqNaHDdtZiREE8fbsObrEzB+6eB2mg8SofQkoEsla7z1j42j1CyJXXnzBFnOKzS7uMIGCTwu3UXjx0US0RyIRocwuEGuIjc/UCQ8p5+lT7sIxL6s9OEVuGIc85TfAaXCuQWKtCepKJLkg7Qi1wwKu4r6X1ee+irE0WJOnQqjHPxYkq4bsRUfXWD8Ye3ZN6x/9+rZHY+waaLUSG/7dQxiW0x7I4jCd6zrG5mAv9yW+1BlK2L8zPWvpH+9GO+hNOeg8tfEQ9YjcWn6peV+fjYHhi4SuLbTgjlZVF6iBe/L79yill15bshobY="
 addons:
   apt:
     sources:
@@ -10,9 +14,18 @@ addons:
     - libuv1-dev
     - libco-dev
     - libraft-dev
+  coverity_scan:
+    project:
+      name: "canonical/dqlite"
+      description: "Embeddable and replicated SQL database"
+    notification_email: free.ekanayaka@canonical.com
+    build_command_prepend: "autoreconf -i && ./configure"
+    build_command: "make"
+    branch_pattern: coverity_scan
 compiler:
   - gcc
 script:
+  - if [ $COVERITY_SCAN_BRANCH = 1 ]; then echo "Don't build on coverty_scan branch."; exit 0; fi
   - autoreconf -i
   - ./configure --enable-debug --enable-code-coverage --enable-sanitize
   - CFLAGS=-O0
